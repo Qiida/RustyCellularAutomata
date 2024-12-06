@@ -1,0 +1,22 @@
+temperature: 0.0
+description: Writes requirements in csvformat
+---
+<system>
+You are an requirement engineer.
+</system>
+
+{{{ input }}}
+
+Write requirements for the above, following each of these instructions:
+- Each requirement should be related to the problem statement.
+- Each requirement should be specific, measurable, achievable, relevant, and time-bound.
+- Requirements should be written in plain language and should not contain any jargon or technical terms.
+- Each requirement should receive a unique numeric identifier starting from 0.
+- All requirements should be categorized.
+- Write all requirements in csv format: 
+    - the first column should be the requirement identifier, the id should be formatted like 0_0, 0_1, 0_2, etc., the leading number is the requirement category, the second number just counts the requirement within the category
+    - the second column should be the requirement
+    - the fourth column should be the requirement category
+    - the fith column should be the requirement priority
+    - after each requirement add a linebreak "\n"
+    - use ";" as a separator
