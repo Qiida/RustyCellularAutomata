@@ -78,7 +78,7 @@ mod tests {
         let mut space = io::read_from_file("resources/glider.space").unwrap();
         let cloned_space = space.clone();
         let alive_cells_of_gen_0 = cloned_space.get_alive_cells();
-        for generation in 1..2 {
+        for _ in 1..2 {
             space.compute_conways_game_of_life();
         }
         space.load_state(0);
@@ -228,6 +228,9 @@ mod tests {
 
     #[test]
     fn cell_aging_works() {
+        println!("----------------------------------");
+        println!("Cell aging");
+        println!("----------------------------------");
         let mut space = Space::build_from_array(&vec![
             vec![0, 0, 0],
             vec![0, 1, 0],
