@@ -1,4 +1,5 @@
 const ALIVE_STATE: u8 = 255;
+const AGING_STEP: u8 = 17;
 
 #[derive(Debug, Clone, PartialEq)]
 #[allow(dead_code)]
@@ -35,7 +36,7 @@ impl Cell {
 
     pub fn age(&mut self) {
         if self.get_state() > 0 {
-            self.set_state(self.get_state() - 17);
+            self.set_state(self.get_state() - AGING_STEP);
         }
     }
 

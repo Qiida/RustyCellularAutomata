@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use std::time::Instant;
 use macroquad::miniquad::window::set_window_size;
 use macroquad::prelude::*;
 use native_dialog::FileDialog;
@@ -7,7 +8,7 @@ use crate::space::{io, Space};
 mod space;
 mod test;
 
-const CELL_SIZE : f32 = 18. ; // 7
+const CELL_SIZE : f32 = 7. ; // 20
 const START_GRID_X_DIM: i32 = 25;
 const START_GRID_Y_DIM: i32 = 25;
 
@@ -24,14 +25,18 @@ fn window_conf() -> Conf {
 async fn main() {
     let mut run: bool = false;
     let mut space = Space::new(START_GRID_X_DIM as u16, START_GRID_Y_DIM as u16);
-    let mut start_time: usize = 0;
+    let mut time_step_start: usize = 0;
     let mut settings = Settings::new(screen_width(), screen_height());
+    let mut time = Instant::now();
     loop {
-        let time = space.displayed_time;
+        let time_step_current = space.displayed_time;
         clear_background(BLACK);
         if run {
             space.compute_conways_game_of_life();
-            space.save_state(time+1);
+            space.save_state(time_step_current +1);
+            if settings.fps_is_on {
+                settings.compute_fps(time);
+            }
         }
         let current_screen_width = screen_width();
         let current_screen_height = screen_height();
@@ -50,7 +55,7 @@ async fn main() {
                 settings.screen_height = current_screen_height;
             }
         }
-        draw(&mut space, settings.tracing, settings.color);
+        draw(&mut space, settings.tracing, &settings.color, &settings.fps, settings.fps_is_on);
         let mouse_position: (f32, f32) = mouse_position();
         if settings.is_active {
             settings.draw(current_screen_width, current_screen_height);
@@ -90,14 +95,14 @@ async fn main() {
                 }
                 if is_mouse_button_released(MouseButton::Left) || is_mouse_button_released(MouseButton::Right) {
                     settings.dragging = false;
-                    if space.states_hash_map.contains_key(&(time + 1)) {
-                        let mut time_key_to_remove = time + 1;
+                    if space.states_hash_map.contains_key(&(time_step_current + 1)) {
+                        let mut time_key_to_remove = time_step_current + 1;
                         while space.states_hash_map.contains_key(&time_key_to_remove) {
                             space.states_hash_map.remove(&time_key_to_remove);
                             time_key_to_remove += 1;
                         }
                     }
-                    space.save_state(time+1);
+                    space.save_state(time_step_current +1);
                 }
             }
         }
@@ -105,33 +110,33 @@ async fn main() {
         {
             if is_key_pressed(KeyCode::Space) {
                 if !run {
-                    start_time = time;
+                    time_step_start = time_step_current;
                 }
                 run = !run;
             }
             if is_key_pressed(KeyCode::Left) {
                 run = false;
-                if time > 0 {
-                    space.load_state(time - 1);
+                if time_step_current > 0 {
+                    space.load_state(time_step_current - 1);
                 }
             }
             if is_key_pressed(KeyCode::Right) {
-                if space.states_hash_map.contains_key(&(time + 1)) {
-                    space.load_state(time+1);
+                if space.states_hash_map.contains_key(&(time_step_current + 1)) {
+                    space.load_state(time_step_current +1);
                 } else {
                     space.compute_conways_game_of_life();
-                    space.save_state(time+1);
+                    space.save_state(time_step_current +1);
                 }
                 run = false;
             }
             if is_key_pressed(KeyCode::Up) {
-                if time > start_time {
-                    space.load_state(start_time);
+                if time_step_current > time_step_start {
+                    space.load_state(time_step_start);
                 }
                 run = false;
             }
             if is_key_pressed(KeyCode::Down) {
-                if time < space.states_hash_map.len() - 1 {
+                if time_step_current < space.states_hash_map.len() - 1 {
                     space.load_state(space.states_hash_map.len() - 1);
                 }
                 run = false;
@@ -219,7 +224,7 @@ async fn main() {
                 }
             }
             if is_key_released(KeyCode::R) {
-                space.save_state(time+1);
+                space.save_state(time_step_current +1);
             }
             if is_key_pressed(KeyCode::T) {
                 settings.tracing = !settings.tracing;
@@ -229,6 +234,12 @@ async fn main() {
             }
             if is_key_pressed(KeyCode::Escape) {
                 settings.is_active = !settings.is_active;
+            }
+            if is_key_pressed(KeyCode::F) {
+                settings.fps_is_on = !settings.fps_is_on;
+                if settings.fps_is_on {
+                    settings.fps_time_start = time.elapsed().as_secs();
+                }
             }
         }
         next_frame().await
@@ -295,7 +306,7 @@ fn process_blue_slider(settings: &mut Settings, mouse_position: (f32, f32)) {
     }
 }
 
-fn draw(space: &mut Space, tracing: bool, color: (f32, f32, f32)) {
+fn draw(space: &mut Space, tracing: bool, color: &(f32, f32, f32), fps: &u64, fps_is_on: bool) {
     if tracing {
         for cell in space.get_cells_with_energy() {
             let color = Color::new(color.0, color.1, color.2, cell.get_state() as f32 / 255.);
@@ -306,6 +317,9 @@ fn draw(space: &mut Space, tracing: bool, color: (f32, f32, f32)) {
             let color = Color::new(color.0, color.1, color.2, 1.);
             draw_rectangle(cell.x as f32 * CELL_SIZE, cell.y as f32 * CELL_SIZE, CELL_SIZE, CELL_SIZE, color);
         }
+    }
+    if fps_is_on {
+        draw_text(&*fps.to_string(), 20., 20., 20., WHITE);
     }
 }
 
@@ -353,6 +367,10 @@ struct Settings {
     blue_slider_position: (f32, f32),
     blue_slider_dragging: bool,
     bar_x_position: f32,
+    fps: u64,
+    fps_is_on: bool,
+    fps_counter: u64,
+    fps_time_start: u64
 }
 
 impl Settings {
@@ -377,6 +395,10 @@ impl Settings {
             blue_slider_position: (0.0, 0.0),
             blue_slider_dragging: false,
             bar_x_position: 0.0,
+            fps: 0,
+            fps_is_on: false,
+            fps_counter: 0,
+            fps_time_start: 0,
         }
     }
     fn get_position(&self, current_width: f32, current_height: f32) -> (f32, f32) {
@@ -430,5 +452,16 @@ impl Settings {
     fn is_in_blue_slider(&self, mouse_position: (f32, f32)) -> bool {
         mouse_position.0 >= self.blue_slider_position.0 && mouse_position.0 <= self.blue_slider_position.0 + self.slider_width &&
             mouse_position.1 >= self.blue_slider_position.1 && mouse_position.1 <= self.blue_slider_position.1 + self.slider_height
+    }
+
+    fn compute_fps(&mut self, time: Instant) {
+        self.fps_counter += 1;
+        let time_current = time.elapsed().as_secs();
+        let time_difference = time_current - self.fps_time_start;
+        if time_difference >= 1 {
+            self.fps = self.fps_counter / time_difference;
+            self.fps_counter = 0;
+            self.fps_time_start = time.elapsed().as_secs();
+        }
     }
 }
