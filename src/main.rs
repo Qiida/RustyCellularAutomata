@@ -8,7 +8,7 @@ use crate::space::{io, Space};
 mod space;
 mod test;
 
-const CELL_SIZE : f32 = 7. ; // 20
+const CELL_SIZE : f32 = 20. ; // 20
 const START_GRID_X_DIM: i32 = 25;
 const START_GRID_Y_DIM: i32 = 25;
 
@@ -27,7 +27,7 @@ async fn main() {
     let mut space = Space::new(START_GRID_X_DIM as u16, START_GRID_Y_DIM as u16);
     let mut time_step_start: usize = 0;
     let mut settings = Settings::new(screen_width(), screen_height());
-    let mut time = Instant::now();
+    let time = Instant::now();
     loop {
         let time_step_current = space.displayed_time;
         clear_background(BLACK);
