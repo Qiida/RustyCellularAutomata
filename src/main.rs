@@ -250,15 +250,15 @@ async fn main() {
 fn process_red_slider(settings: &mut Settings, mouse_position: (f32, f32)) {
     if settings.is_in_red_slider(mouse_position) {
         if is_mouse_button_pressed(MouseButton::Left) {
-            settings.red_slider_dragging = true;
+            settings.slider_red_dragging = true;
         }
     }
     if is_mouse_button_released(MouseButton::Left) {
-        if settings.red_slider_dragging {
-            settings.red_slider_dragging = false;
+        if settings.slider_red_dragging {
+            settings.slider_red_dragging = false;
         }
     }
-    if settings.red_slider_dragging && is_mouse_button_down(MouseButton::Left) {
+    if settings.slider_red_dragging && is_mouse_button_down(MouseButton::Left) {
         if mouse_position.0 >= settings.bar_x_position && mouse_position.0 <= settings.bar_x_position + settings.color_bar_width {
             let relative_position: f32 = mouse_position.0 - settings.bar_x_position;
             let float_value: f32 = relative_position / settings.color_bar_width;
@@ -270,15 +270,15 @@ fn process_red_slider(settings: &mut Settings, mouse_position: (f32, f32)) {
 fn process_green_slider(settings: &mut Settings, mouse_position: (f32, f32)) {
     if settings.is_in_green_slider(mouse_position) {
         if is_mouse_button_pressed(MouseButton::Left) {
-            settings.green_slider_dragging = true;
+            settings.slider_green_dragging = true;
         }
     }
     if is_mouse_button_released(MouseButton::Left) {
-        if settings.green_slider_dragging {
-            settings.green_slider_dragging = false;
+        if settings.slider_green_dragging {
+            settings.slider_green_dragging = false;
         }
     }
-    if settings.green_slider_dragging && is_mouse_button_down(MouseButton::Left) {
+    if settings.slider_green_dragging && is_mouse_button_down(MouseButton::Left) {
         if mouse_position.0 >= settings.bar_x_position && mouse_position.0 <= settings.bar_x_position + settings.color_bar_width {
             let relative_position: f32 = mouse_position.0 - settings.bar_x_position;
             let float_value: f32 = relative_position / settings.color_bar_width;
@@ -290,15 +290,15 @@ fn process_green_slider(settings: &mut Settings, mouse_position: (f32, f32)) {
 fn process_blue_slider(settings: &mut Settings, mouse_position: (f32, f32)) {
     if settings.is_in_blue_slider(mouse_position) {
         if is_mouse_button_pressed(MouseButton::Left) {
-            settings.blue_slider_dragging = true;
+            settings.slider_blue_dragging = true;
         }
     }
     if is_mouse_button_released(MouseButton::Left) {
-        if settings.blue_slider_dragging {
-            settings.blue_slider_dragging = false;
+        if settings.slider_blue_dragging {
+            settings.slider_blue_dragging = false;
         }
     }
-    if settings.blue_slider_dragging && is_mouse_button_down(MouseButton::Left) {
+    if settings.slider_blue_dragging && is_mouse_button_down(MouseButton::Left) {
         if mouse_position.0 >= settings.bar_x_position && mouse_position.0 <= settings.bar_x_position + settings.color_bar_width {
             let relative_position: f32 = mouse_position.0 - settings.bar_x_position;
             let float_value: f32 = relative_position / settings.color_bar_width;
@@ -361,12 +361,12 @@ struct Settings {
     color_bar_height: f32,
     slider_width: f32,
     slider_height: f32,
-    red_slider_position: (f32, f32),
-    red_slider_dragging: bool,
-    green_slider_position: (f32, f32),
-    green_slider_dragging: bool,
-    blue_slider_position: (f32, f32),
-    blue_slider_dragging: bool,
+    slider_red_position: (f32, f32),
+    slider_red_dragging: bool,
+    slider_green_position: (f32, f32),
+    slider_green_dragging: bool,
+    slider_blue_position: (f32, f32),
+    slider_blue_dragging: bool,
     bar_x_position: f32,
     fps: u64,
     fps_is_on: bool,
@@ -389,12 +389,12 @@ impl Settings {
             color_bar_height: 20.,
             slider_width: 10.,
             slider_height: 24.,
-            red_slider_position: (0.0, 0.0),
-            red_slider_dragging: false,
-            green_slider_position: (0.0, 0.0),
-            green_slider_dragging: false,
-            blue_slider_position: (0.0, 0.0),
-            blue_slider_dragging: false,
+            slider_red_position: (0.0, 0.0),
+            slider_red_dragging: false,
+            slider_green_position: (0.0, 0.0),
+            slider_green_dragging: false,
+            slider_blue_position: (0.0, 0.0),
+            slider_blue_dragging: false,
             bar_x_position: 0.0,
             fps: 0,
             fps_is_on: false,
@@ -412,47 +412,47 @@ impl Settings {
         self.bar_x_position = position.0 + 20.;
         let red_bar_position = (self.bar_x_position, position.1 + 10.);
         draw_rectangle(red_bar_position.0, red_bar_position.1, self.color_bar_width, self.color_bar_height, RED);
-        self.red_slider_position = (
+        self.slider_red_position = (
             red_bar_position.0 + self.color.0 * self.color_bar_width - self.slider_width/2.,
             red_bar_position.1 + self.color_bar_height/2. - self.slider_height/2.,
         );
         draw_rectangle(
-            self.red_slider_position.0, self.red_slider_position.1, self.slider_width, self.slider_height, BLACK
+            self.slider_red_position.0, self.slider_red_position.1, self.slider_width, self.slider_height, BLACK
         );
         let green_bar_position: (f32, f32) = (self.bar_x_position, position.1 + 20. + self.color_bar_height);
         draw_rectangle(green_bar_position.0, green_bar_position.1, self.color_bar_width, self.color_bar_height, GREEN);
-        self.green_slider_position = (
+        self.slider_green_position = (
             green_bar_position.0 + self.color.1 * self.color_bar_width - self.slider_width/2.,
             green_bar_position.1 + self.color_bar_height/2. - self.slider_height/2.,
         );
         draw_rectangle(
-            self.green_slider_position.0, self.green_slider_position.1, self.slider_width, self.slider_height, BLACK
+            self.slider_green_position.0, self.slider_green_position.1, self.slider_width, self.slider_height, BLACK
         );
         let blue_bar_position: (f32, f32) = (self.bar_x_position, position.1 + 30. + 2. * self.color_bar_height);
         draw_rectangle(blue_bar_position.0, blue_bar_position.1, self.color_bar_width, self.color_bar_height, BLUE);
-        self.blue_slider_position = (
+        self.slider_blue_position = (
             blue_bar_position.0 + self.color.2 * self.color_bar_width - self.slider_width/2.,
             blue_bar_position.1 + self.color_bar_height/2. - self.slider_height/2.,
         );
         draw_rectangle(
-            self.blue_slider_position.0, self.blue_slider_position.1, self.slider_width, self.slider_height, BLACK
+            self.slider_blue_position.0, self.slider_blue_position.1, self.slider_width, self.slider_height, BLACK
         );
         draw_rectangle(position.0 + 30. + self.color_bar_width, position.1 + 15., self.settings_width - self.color_bar_width - 40., self.settings_height - 40., Color::new(self.color.0, self.color.1, self.color.2, 1.));
     }
 
     fn is_in_red_slider(&self, mouse_position: (f32, f32)) -> bool {
-        mouse_position.0 >= self.red_slider_position.0 && mouse_position.0 <= self.red_slider_position.0 + self.slider_width &&
-            mouse_position.1 >= self.red_slider_position.1 && mouse_position.1 <= self.red_slider_position.1 + self.slider_height
+        mouse_position.0 >= self.slider_red_position.0 && mouse_position.0 <= self.slider_red_position.0 + self.slider_width &&
+            mouse_position.1 >= self.slider_red_position.1 && mouse_position.1 <= self.slider_red_position.1 + self.slider_height
     }
 
     fn is_in_green_slider(&self, mouse_position: (f32, f32)) -> bool {
-        mouse_position.0 >= self.green_slider_position.0 && mouse_position.0 <= self.green_slider_position.0 + self.slider_width &&
-            mouse_position.1 >= self.green_slider_position.1 && mouse_position.1 <= self.green_slider_position.1 + self.slider_height
+        mouse_position.0 >= self.slider_green_position.0 && mouse_position.0 <= self.slider_green_position.0 + self.slider_width &&
+            mouse_position.1 >= self.slider_green_position.1 && mouse_position.1 <= self.slider_green_position.1 + self.slider_height
     }
 
     fn is_in_blue_slider(&self, mouse_position: (f32, f32)) -> bool {
-        mouse_position.0 >= self.blue_slider_position.0 && mouse_position.0 <= self.blue_slider_position.0 + self.slider_width &&
-            mouse_position.1 >= self.blue_slider_position.1 && mouse_position.1 <= self.blue_slider_position.1 + self.slider_height
+        mouse_position.0 >= self.slider_blue_position.0 && mouse_position.0 <= self.slider_blue_position.0 + self.slider_width &&
+            mouse_position.1 >= self.slider_blue_position.1 && mouse_position.1 <= self.slider_blue_position.1 + self.slider_height
     }
 
     fn compute_fps(&mut self, time: Instant) {
