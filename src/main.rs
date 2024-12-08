@@ -8,7 +8,7 @@ use crate::space::{io, Space};
 mod space;
 mod test;
 
-const CELL_SIZE : f32 = 20. ; // 20
+const CELL_SIZE : f32 = 10. ; // 20
 const START_GRID_X_DIM: i32 = 25;
 const START_GRID_Y_DIM: i32 = 25;
 
@@ -34,9 +34,7 @@ async fn main() {
         if run {
             space.compute_conways_game_of_life();
             space.save_state(time_step_current +1);
-            if settings.fps_is_on {
-                settings.compute_fps(time);
-            }
+
         }
         let current_screen_width = screen_width();
         let current_screen_height = screen_height();
@@ -56,6 +54,9 @@ async fn main() {
             }
         }
         draw(&mut space, settings.tracing, &settings.color, &settings.fps, settings.fps_is_on);
+        if settings.fps_is_on {
+            settings.compute_fps(time);
+        }
         let mouse_position: (f32, f32) = mouse_position();
         if settings.is_active {
             settings.draw(current_screen_width, current_screen_height);

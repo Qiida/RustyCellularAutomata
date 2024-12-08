@@ -3,6 +3,7 @@ use linked_hash_map::LinkedHashMap;
 use rand::seq::SliceRandom;
 use crate::space::cell::Cell;
 use rand::thread_rng;
+use rayon::prelude::*;
 
 
 pub(crate) mod cell;
@@ -270,19 +271,13 @@ impl Space {
         neighbors_vec
     }
 
-
-    pub fn compute_conways_game_of_life(&mut self) {
+    #[allow(dead_code)]
+    pub fn compute_conways_game_of_life_single_threaded(&mut self) {
         let current_state = self.clone();
         for x in 0..self.x_dim() {
             for y in 0..self.y_dim() {
                 let current_cell = current_state.get_cell(x, y).unwrap();
-                let mut num_alive_neighbors: usize = 0;
-                let neighbors = current_state.get_neighbors_vec(current_cell);
-                for neighbor in neighbors {
-                    if neighbor.is_alive() {
-                        num_alive_neighbors += 1;
-                    }
-                }
+                let num_alive_neighbors = Self::count_neighbours(&current_state, current_cell);
                 if current_cell.is_alive() {
                     if num_alive_neighbors > 3 || num_alive_neighbors < 2 {
                         self.let_cell_age(x, y);
@@ -299,6 +294,57 @@ impl Space {
             }
         }
     }
+
+    fn count_neighbours(space: &Space, cell: &Cell) -> usize {
+        let mut num_alive_neighbors: usize = 0;
+        let neighbors = space.get_neighbors_vec(cell);
+        for neighbor in neighbors {
+            if neighbor.is_alive() {
+                num_alive_neighbors += 1;
+            }
+        }
+        num_alive_neighbors
+    }
+
+    pub fn compute_conways_game_of_life(&mut self) {
+        let state_current = self.clone();
+        let flat: Vec<&mut Cell> = self.flat_mut();
+        let changes: Vec<(u16, u16, CellAction)> = flat
+            .par_iter()
+            .filter_map(|cell| {
+                let cell_current = state_current.get_cell(cell.x, cell.y).unwrap();
+                let num_alive_neighbors = Self::count_neighbours(&state_current, cell_current);
+
+                // Determine the action to take for the cell
+                if cell_current.is_alive() {
+                    if num_alive_neighbors > 3 || num_alive_neighbors < 2 {
+                        Some((cell.x, cell.y, CellAction::Age))
+                    } else {
+                        None
+                    }
+                } else if num_alive_neighbors == 3 {
+                    Some((cell.x, cell.y, CellAction::Revive))
+                } else if cell_current.get_state() > 0 && cell_current.get_state() < 255 {
+                    Some((cell.x, cell.y, CellAction::Age))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // Apply the changes sequentially
+        for (x, y, action) in changes {
+            match action {
+                CellAction::Age => self.let_cell_age(x, y),
+                CellAction::Revive => self.revive_cell(x, y),
+            }
+        }
+    }
+}
+
+enum CellAction {
+    Age,
+    Revive,
 }
 
 #[derive(Debug)]
