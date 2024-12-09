@@ -277,7 +277,7 @@ impl Space {
         for x in 0..self.x_dim() {
             for y in 0..self.y_dim() {
                 let current_cell = current_state.get_cell(x, y).unwrap();
-                let num_alive_neighbors = Self::count_neighbours(&current_state, current_cell);
+                let num_alive_neighbors = Self::count_alive_neighbours(&current_state, current_cell);
                 if current_cell.is_alive() {
                     if num_alive_neighbors > 3 || num_alive_neighbors < 2 {
                         self.let_cell_age(x, y);
@@ -295,7 +295,7 @@ impl Space {
         }
     }
 
-    fn count_neighbours(space: &Space, cell: &Cell) -> usize {
+    fn count_alive_neighbours(space: &Space, cell: &Cell) -> usize {
         let mut num_alive_neighbors: usize = 0;
         let neighbors = space.get_neighbors_vec(cell);
         for neighbor in neighbors {
@@ -313,7 +313,7 @@ impl Space {
             .par_iter()
             .filter_map(|cell| {
                 let cell_current = state_current.get_cell(cell.x, cell.y).unwrap();
-                let num_alive_neighbors = Self::count_neighbours(&state_current, cell_current);
+                let num_alive_neighbors = Self::count_alive_neighbours(&state_current, cell_current);
 
                 // Determine the action to take for the cell
                 if cell_current.is_alive() {
