@@ -306,7 +306,7 @@ impl Space {
         num_alive_neighbors
     }
 
-    pub fn compute_conways_game_of_life(&mut self) {
+    pub fn compute_conways_game_of_life_multithreaded(&mut self) {
         let state_current = self.clone();
         let flat: Vec<&mut Cell> = self.flat_mut();
         let changes: Vec<(u16, u16, CellAction)> = flat

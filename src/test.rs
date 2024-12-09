@@ -79,7 +79,7 @@ mod tests {
         let cloned_space = space.clone();
         let alive_cells_of_gen_0 = cloned_space.get_alive_cells();
         for _ in 1..2 {
-            space.compute_conways_game_of_life();
+            space.compute_conways_game_of_life_multithreaded();
         }
         space.load_state(0);
         let alive_cells_of_loaded_gen_0 = space.get_alive_cells();
@@ -101,7 +101,7 @@ mod tests {
         println!("Generation: 0");
         space.print_state();
         println!("Generation: 1");
-        space.compute_conways_game_of_life();
+        space.compute_conways_game_of_life_multithreaded();
         space.print_state();
         assert_eq!(false, space.check_cell_is_alive(1, 1));
         assert_eq!(false, space.check_cell_is_alive(1, 1));
@@ -120,7 +120,7 @@ mod tests {
         println!("Generation: 0");
         space.print_state();
         println!("Generation: 1");
-        space.compute_conways_game_of_life();
+        space.compute_conways_game_of_life_multithreaded();
         space.print_state();
         assert_eq!(false, space.check_cell_is_alive(0, 0));
         assert_eq!(true, space.check_cell_is_alive(1, 1));
@@ -140,7 +140,7 @@ mod tests {
         println!("Generation: 0");
         space.print_state();
         println!("Generation: 1");
-        space.compute_conways_game_of_life();
+        space.compute_conways_game_of_life_multithreaded();
         space.print_state();
         assert_eq!(6, space.get_num_alive_cells());
         assert_eq!(false, space.get_cell(1, 1).unwrap().is_alive());
@@ -159,7 +159,7 @@ mod tests {
         println!("Generation: 0");
         space.print_state();
         println!("Generation: 1");
-        space.compute_conways_game_of_life();
+        space.compute_conways_game_of_life_multithreaded();
         space.print_state();
         assert_eq!(true, space.check_cell_is_alive(1, 1));
         assert_eq!(1, space.get_num_alive_cells())
@@ -178,13 +178,13 @@ mod tests {
         println!("Generation: 0");
         space.print_state();
         println!("Generation: 1");
-        space.compute_conways_game_of_life();
+        space.compute_conways_game_of_life_multithreaded();
         space.print_state();
         assert_eq!(true, space.check_cell_is_alive(0, 1));
         assert_eq!(true, space.check_cell_is_alive(1, 1));
         assert_eq!(true, space.check_cell_is_alive(2, 1));
         println!("Generation: 2");
-        space.compute_conways_game_of_life();
+        space.compute_conways_game_of_life_multithreaded();
         space.print_state();
         assert_eq!(true, space.check_cell_is_alive(1, 0));
         assert_eq!(true, space.check_cell_is_alive(1, 1));
@@ -240,7 +240,7 @@ mod tests {
         println!("Energy(1,1) in t=0: {}", space.get_cell(1, 1).unwrap().get_state());
         assert_eq!(255, space.get_cell(1, 1).unwrap().get_state());
         for i in 1..16 {
-            space.compute_conways_game_of_life();
+            space.compute_conways_game_of_life_multithreaded();
             assert_eq!(false, space.check_cell_is_alive(1, 1));
             println!("Energy(1,1) in t={}: {}", i, space.get_cell(1, 1).unwrap().get_state());
             assert_eq!(255 - (17 * i), space.get_cell(1, 1).unwrap().get_state());
@@ -259,7 +259,7 @@ mod tests {
         let mut duration = start.elapsed().as_millis();
         let mut iterations = 0;
         while duration < 1000 {
-            space.compute_conways_game_of_life();
+            space.compute_conways_game_of_life_multithreaded();
             duration = start.elapsed().as_millis();
             iterations += 1;
         }
