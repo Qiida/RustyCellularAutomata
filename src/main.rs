@@ -32,7 +32,7 @@ async fn main() {
         let time_step_current = space.displayed_time;
         clear_background(BLACK);
         if run {
-            space.compute_conways_game_of_life_multithreaded();
+            space.compute_conways_game_of_life_multithreaded_rayon();
             space.save_state(time_step_current +1);
 
         }
@@ -125,7 +125,7 @@ async fn main() {
                 if space.states_hash_map.contains_key(&(time_step_current + 1)) {
                     space.load_state(time_step_current +1);
                 } else {
-                    space.compute_conways_game_of_life_multithreaded();
+                    space.compute_conways_game_of_life_multithreaded_rayon();
                     space.save_state(time_step_current +1);
                 }
                 run = false;

@@ -1,9 +1,12 @@
+use crate::space::cell::Cell;
 use std::{error::Error, fmt};
 use linked_hash_map::LinkedHashMap;
 use rand::seq::SliceRandom;
-use crate::space::cell::Cell;
 use rand::thread_rng;
 use rayon::prelude::*;
+// use std::sync::{Arc, Mutex};
+// use std::thread;
+// use num_cpus;
 
 
 pub(crate) mod cell;
@@ -306,7 +309,31 @@ impl Space {
         num_alive_neighbors
     }
 
-    pub fn compute_conways_game_of_life_multithreaded(&mut self) {
+    // pub fn compute_conways_game_of_life_multithreaded(&mut self) {
+    //     let state_current = self.clone();
+    //     let mut cells: Vec<&mut Cell> = self.flat_mut();
+    //     let num_threads = num_cpus::get();
+    //     let chunk_size = (cells.len() + num_threads - 1) / num_threads;
+    //     let changes = Arc::new(Mutex::new(Vec::new()));
+    //     let mut handles = vec![];
+    //     for chunk in cells.chunks_mut(chunk_size) {
+    //         let chunk = chunk.to_vec();
+    //         let shared_output = Arc::clone(&changes);
+    //
+    //         let handle = thread::spawn(move |cell| {
+    //             let mut local_results = Vec::new();
+    //             let state_current = shared_output;
+    //
+    //             for cell in chunk {
+    //                 // let cell_current = &state_current.get_cell(4,3).unwrap();
+    //                 // let num_alive_neighbors = Self::count_alive_neighbours(&state_current, cell_current);
+    //             }
+    //
+    //         });
+    //     }
+    //
+    // }
+    pub fn compute_conways_game_of_life_multithreaded_rayon(&mut self) {
         let state_current = self.clone();
         let flat: Vec<&mut Cell> = self.flat_mut();
         let changes: Vec<(u16, u16, CellAction)> = flat

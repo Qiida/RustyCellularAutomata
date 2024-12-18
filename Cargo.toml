@@ -6,8 +6,9 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
-pixels= "0.14.0"
+#pixels= "0.14.0"
 macroquad = "0.4.13"
 native-dialog = "0.7.0"
 linked-hash-map = "0.5.6"
 rayon = "1.7"
+num_cpus = "1.16.0"
