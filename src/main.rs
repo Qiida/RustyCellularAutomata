@@ -8,7 +8,7 @@ use crate::space::{io, Space};
 mod space;
 mod test;
 
-const CELL_SIZE : f32 = 10. ; // 20
+const CELL_SIZE : f32 = 28. ; // 20
 const START_GRID_X_DIM: i32 = 25;
 const START_GRID_Y_DIM: i32 = 25;
 
@@ -33,22 +33,21 @@ async fn main() {
         clear_background(BLACK);
         if run {
             space.compute_conways_game_of_life_multithreaded();
-            space.save_state(time_step_current +1);
-
+            space.save_state(time_step_current + 1);
         }
         let current_screen_width = screen_width();
         let current_screen_height = screen_height();
         // Resizing Window
         {
             if current_screen_width != settings.screen_width || current_screen_height != settings.screen_height {
-                let mut new_space = Space::new((current_screen_width / CELL_SIZE) as u16, (current_screen_height / CELL_SIZE) as u16);
+                let mut resized_space = Space::new((current_screen_width / CELL_SIZE) as u16, (current_screen_height / CELL_SIZE) as u16);
                 for alive_cell in space.get_alive_cells() {
-                    let res = new_space.get_cell_mut(alive_cell.x, alive_cell.y);
-                    if res.is_ok() {
-                        res.unwrap().revive();
+                    let res_cell = resized_space.get_cell_mut(alive_cell.x, alive_cell.y);
+                    if res_cell.is_ok() {
+                        res_cell.unwrap().revive();
                     }
                 }
-                space = new_space;
+                space = resized_space;
                 settings.screen_width = current_screen_width;
                 settings.screen_height = current_screen_height;
             }

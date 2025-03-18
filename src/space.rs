@@ -1,7 +1,7 @@
+use crate::space::cell::Cell;
 use std::{error::Error, fmt};
 use linked_hash_map::LinkedHashMap;
 use rand::seq::SliceRandom;
-use crate::space::cell::Cell;
 use rand::thread_rng;
 use rayon::prelude::*;
 
@@ -44,24 +44,6 @@ impl Space {
             }
         }
         space
-    }
-
-    #[allow(dead_code)]
-    pub fn set_state_from_array(&mut self, array: &Vec<Vec<u8>>) {
-        let x_dim = array[0].len() as u16;
-        let y_dim = array.len() as u16;
-        if (x_dim == self.x_dim()) & (y_dim == self.x_dim()) {
-            for x in 0..x_dim {
-                for y in 0..y_dim {
-                    let cell = &mut self.cells[y as usize][x as usize];
-                    if array[y as usize][x as usize] == 1 {
-                        cell.revive()
-                    } else {
-                        cell.kill()
-                    }
-                }
-            }
-        }
     }
 
     pub fn save_state(&mut self, time: usize) {
@@ -187,18 +169,6 @@ impl Space {
         cells_with_energy
     }
 
-    #[allow(dead_code)]
-    pub fn get_alive_cells_mut(&mut self) -> Vec<&mut Cell> {
-        let flat_cells = self.flat_mut();
-        let mut alive_cells = Vec::new();
-        for cell in flat_cells {
-            if cell.is_alive() {
-                alive_cells.push(cell);
-            }
-        }
-        alive_cells 
-    }
-
     pub fn get_cells_with_energy_mut(&mut self) -> Vec<&mut Cell> {
         let flat_cells = self.flat_mut();
         let mut cells_with_energy = Vec::new();
@@ -306,16 +276,12 @@ impl Space {
         num_alive_neighbors
     }
 
-    pub fn compute_conways_game_of_life_multithreaded(&mut self) {
-        let state_current = self.clone();
-        let flat: Vec<&mut Cell> = self.flat_mut();
-        let changes: Vec<(u16, u16, CellAction)> = flat
+    fn get_changes_by_conways_game_of_life_rules_par(cells: Vec<& Cell>, state_current: &Space) -> Vec<(u16, u16, CellAction)> {
+        let changes: Vec<(u16, u16, CellAction)> = cells
             .par_iter()
             .filter_map(|cell| {
                 let cell_current = state_current.get_cell(cell.x, cell.y).unwrap();
                 let num_alive_neighbors = Self::count_alive_neighbours(&state_current, cell_current);
-
-                // Determine the action to take for the cell
                 if cell_current.is_alive() {
                     if num_alive_neighbors > 3 || num_alive_neighbors < 2 {
                         Some((cell.x, cell.y, CellAction::Age))
@@ -331,8 +297,13 @@ impl Space {
                 }
             })
             .collect();
+        changes
+    }
 
-        // Apply the changes sequentially
+    pub fn compute_conways_game_of_life_multithreaded(&mut self) {
+        let state_current = self.clone();
+        let flat: Vec<&Cell> = self.flat();
+        let changes: Vec<(u16, u16, CellAction)>= Self::get_changes_by_conways_game_of_life_rules_par(flat, &state_current);
         for (x, y, action) in changes {
             match action {
                 CellAction::Age => self.let_cell_age(x, y),
