@@ -303,7 +303,7 @@ impl Space {
     pub fn compute_conways_game_of_life_multithreaded(&mut self) {
         let state_current = self.clone();
         let flat: Vec<&Cell> = self.flat();
-        let changes = Self::get_changes_by_conways_game_of_life_rules_par(flat, &state_current);
+        let changes: Vec<(u16, u16, CellAction)>= Self::get_changes_by_conways_game_of_life_rules_par(flat, &state_current);
         for (x, y, action) in changes {
             match action {
                 CellAction::Age => self.let_cell_age(x, y),
