@@ -1,7 +1,7 @@
 const ALIVE_STATE: u8 = 255;
 const AGING_STEP: u8 = 17;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[allow(dead_code)]
 pub struct Cell {
     pub x: u16,
