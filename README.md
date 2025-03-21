@@ -22,3 +22,5 @@ This is a rusty cellular autoamta.
 
 *k* -> kill all cells
 
+*t* -> toggle traces
+
