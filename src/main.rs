@@ -9,14 +9,14 @@ mod space;
 mod test;
 
 const CELL_SIZE : f32 = 28. ; // 20
-const START_GRID_X_DIM: i32 = 25;
-const START_GRID_Y_DIM: i32 = 25;
+const START_GRID_X_DIM: u16 = 25;
+const START_GRID_Y_DIM: u16 = 25;
 
 fn window_conf() -> Conf {
     Conf {
         window_title: "Cellular Automata".to_string(),
-        window_width: START_GRID_X_DIM * CELL_SIZE as i32,
-        window_height: START_GRID_Y_DIM * CELL_SIZE as i32,
+        window_width: START_GRID_X_DIM as i32 * CELL_SIZE as i32,
+        window_height: START_GRID_Y_DIM as i32 * CELL_SIZE as i32,
         ..Default::default()
     }
 }
@@ -24,7 +24,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut run: bool = false;
-    let mut space = Space::new(START_GRID_X_DIM as u16, START_GRID_Y_DIM as u16);
+    let mut space = Space::new(START_GRID_X_DIM, START_GRID_Y_DIM);
     let mut time_step_start: usize = 0;
     let mut settings = Settings::new(screen_width(), screen_height());
     let time = Instant::now();
@@ -416,7 +416,8 @@ impl Settings {
             red_bar_position.1 + self.color_bar_height/2. - self.slider_height/2.,
         );
         draw_rectangle(
-            self.slider_red_position.0, self.slider_red_position.1, self.slider_width, self.slider_height, BLACK
+            self.slider_red_position.0, self.slider_red_position.1,
+            self.slider_width, self.slider_height, BLACK
         );
         let green_bar_position: (f32, f32) = (self.bar_x_position, position.1 + 20. + self.color_bar_height);
         draw_rectangle(green_bar_position.0, green_bar_position.1, self.color_bar_width, self.color_bar_height, GREEN);
@@ -434,9 +435,16 @@ impl Settings {
             blue_bar_position.1 + self.color_bar_height/2. - self.slider_height/2.,
         );
         draw_rectangle(
-            self.slider_blue_position.0, self.slider_blue_position.1, self.slider_width, self.slider_height, BLACK
+            self.slider_blue_position.0, self.slider_blue_position.1,
+            self.slider_width, self.slider_height, BLACK
         );
-        draw_rectangle(position.0 + 30. + self.color_bar_width, position.1 + 15., self.settings_width - self.color_bar_width - 40., self.settings_height - 40., Color::new(self.color.0, self.color.1, self.color.2, 1.));
+        let color: Color = Color::new(self.color.0, self.color.1, self.color.2, 1.);
+        draw_rectangle(
+            position.0 + 30. + self.color_bar_width,
+            position.1 + 15., self.settings_width - self.color_bar_width - 40.,
+            self.settings_height - 40.,
+            color
+        );
     }
 
     fn is_in_red_slider(&self, mouse_position: (f32, f32)) -> bool {
