@@ -84,17 +84,17 @@ impl Space {
     }
 
     pub(crate) fn revive_cell(&mut self, x: u16, y: u16) {
-        let cell = self.get_cell_mut(x, y).unwrap();
+        let cell: &mut Cell = self.get_cell_mut(x, y).unwrap();
         cell.revive();
     }
 
     pub fn let_cell_age(&mut self, x: u16, y: u16) {
-        let cell = self.get_cell_mut(x, y).unwrap();
+        let cell: &mut Cell = self.get_cell_mut(x, y).unwrap();
         cell.age();
     }
 
     pub fn kill_all_cells(&mut self) {
-        let alive_cells = self.get_cells_with_energy_mut();
+        let alive_cells: Vec<&mut Cell> = self.get_cells_with_energy_mut();
         for cell in alive_cells {
             cell.kill();
         }

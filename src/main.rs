@@ -389,7 +389,6 @@ struct Settings {
     fps_is_on: bool,
     fps_counter: u64,
     fps_time_start: u64,
-    initiated: bool
 }
 
 impl Settings {
@@ -418,7 +417,6 @@ impl Settings {
             fps_is_on: false,
             fps_counter: 0,
             fps_time_start: 0,
-            initiated: false
         }
     }
     fn get_position(&self, current_width: f32, current_height: f32) -> (f32, f32) {

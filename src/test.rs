@@ -67,10 +67,26 @@ mod tests {
 
     #[test]
     fn get_moore_neighbourhood_works() {
-        let space = Space::new(3, 3);
+        let array: Vec<Vec<u8>> = vec![
+            vec![0, 1, 0],  // 7 0 1
+            vec![1, 1, 1],  // 6   2
+            vec![0, 1, 0],  // 5 4 3
+        ];
+        let space = Space::build_from_array(&array);
         let cell = space.get_cell(1, 1).unwrap();
         let neighbors = space.get_neighbors_vec(cell);
+        for neighbor in &neighbors {
+            println!("neighbor: {:?}", neighbor);
+        }
         assert_eq!(neighbors.len(), 8);
+        assert_eq!(false, neighbors.get(7).unwrap().is_alive());
+        assert_eq!(true, neighbors.get(0).unwrap().is_alive());
+        assert_eq!(false, neighbors.get(1).unwrap().is_alive());
+        assert_eq!(true, neighbors.get(2).unwrap().is_alive());
+        assert_eq!(false, neighbors.get(3).unwrap().is_alive());
+        assert_eq!(true, neighbors.get(4).unwrap().is_alive());
+        assert_eq!(false, neighbors.get(5).unwrap().is_alive());
+        assert_eq!(true, neighbors.get(6).unwrap().is_alive());
     }
 
     #[test]
