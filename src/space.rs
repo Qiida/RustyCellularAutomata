@@ -279,23 +279,25 @@ impl Space {
     fn get_changes_by_conways_game_of_life_rules_par(cells: Vec<& Cell>, state_current: &Space) -> Vec<(u16, u16, CellAction)> {
         let changes: Vec<(u16, u16, CellAction)> = cells
             .par_iter()
-            .filter_map(|cell| {
-                let cell_current = state_current.get_cell(cell.x, cell.y).unwrap();
-                let num_alive_neighbors = Self::count_alive_neighbours(&state_current, cell_current);
-                if cell_current.is_alive() {
-                    if num_alive_neighbors > 3 || num_alive_neighbors < 2 {
+            .filter_map(
+                | cell: &&Cell | {
+                    let cell_current = state_current.get_cell(cell.x, cell.y).unwrap();
+                    let num_alive_neighbors = Self::count_alive_neighbours(&state_current, cell_current);
+                    if cell_current.is_alive() {
+                        if num_alive_neighbors > 3 || num_alive_neighbors < 2 {
+                            Some((cell.x, cell.y, CellAction::Age))
+                        } else {
+                            None
+                        }
+                    } else if num_alive_neighbors == 3 {
+                        Some((cell.x, cell.y, CellAction::Revive))
+                    } else if cell_current.get_state() > 0 && cell_current.get_state() < 255 {
                         Some((cell.x, cell.y, CellAction::Age))
                     } else {
                         None
                     }
-                } else if num_alive_neighbors == 3 {
-                    Some((cell.x, cell.y, CellAction::Revive))
-                } else if cell_current.get_state() > 0 && cell_current.get_state() < 255 {
-                    Some((cell.x, cell.y, CellAction::Age))
-                } else {
-                    None
                 }
-            })
+            )
             .collect();
         changes
     }
